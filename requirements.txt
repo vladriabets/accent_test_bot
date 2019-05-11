@@ -42,7 +42,7 @@ stevedore==1.30.1
 telepot==12.7
 termcolor==1.1.0
 typing-extensions==3.7.2
-urllib3==1.22
+urllib3==1.25.2
 virtualenv==15.2.0
 virtualenv-clone==0.5.2
 virtualenvwrapper==4.8.4
