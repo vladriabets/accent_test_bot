@@ -7,7 +7,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from description import descriptions
 
-# Настройки приложения и базы данных
+# App and database settings
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///user.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -17,7 +17,7 @@ from models import User
 db.create_all()
 db.session.commit()
 
-# Создание бота по токену, сохранённому в переменной окружения
+# Create bot using token saved as an environment variable
 TOKEN = os.environ.get('TOKEN')
 bot = telepot.Bot(TOKEN)
 
@@ -25,43 +25,46 @@ bot = telepot.Bot(TOKEN)
 def hello():
     return 'Hello!'
 
-# Чтение вопросов из файла
+# Read questions from a file
 questions = []
 with open('questions.txt') as file:
     for line in file:
         questions.append(line)
 
-# Чтение указаний к какой акцентуации засчитывать ответ из файла
+# Read keys for the answers from a file
 answers = []
 with open('answers.txt') as file:
     for line in file:
         answers.append(line)
 
-# Функции - помощники:
+# Help-functions
 
 def user_in_table(user_id):
-    """Проверяет наличие пользователя с данным id в таблице"""
+    """ Check if this user id exicts in the table"""
+    
     if User.query.filter_by(id=user_id).first():
         return True
     else:
         return False
 
 def add_user(user_id, name):
-    """Добавляет нового пользователя в таблицу"""
+    """ Add a new user to the table """
+    
     new_user = User(id=user_id, username=name)
     db.session.add(new_user)
     db.session.commit()
 
 def key_max(d):
-     """Возвращает ключ словаря с наибольшим значением"""
-     v=list(d.values())
-     k=list(d.keys())
+     """ Return the dictionary key with maximum value """
+        
+     v = list(d.values())
+     k = list(d.keys())
      return k[v.index(max(v))]
 
-# Фунуции - обработчики
+# Main functionality
 
 def on_chat_message(msg):
-    """Обработчик сообщений"""
+    """ Process messages """
 
     content_type, chat_type, chat_id = telepot.glance(msg)
     if not user_in_table(chat_id):
@@ -86,7 +89,7 @@ def on_chat_message(msg):
 
 
 def on_callback_query(msg):
-    """Обработчик ответов со встроенной клавиатуры"""
+    """Process inline keyboard tabs"""
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text='Да', callback_data='Да'),
@@ -198,7 +201,7 @@ def on_callback_query(msg):
 
     db.session.commit()
 
-# Запускает обработку обновлений бесконечным циклом
+# Run the bot in infinity cycle
 MessageLoop(bot, {'chat': on_chat_message,
                   'callback_query': on_callback_query}).run_as_thread()
 while True:
